@@ -264,10 +264,11 @@ public OnCorpse_Think(this) {
 	set_pev(this, pev_nextthink, get_gametime() + 0.1);
 
 	// only you can drin blood humans corpses
-	// note: it seems that vs doesn't care if is human or vamp
-	//if (pev(this, pev_modelindex) != g_MdlFather) {
-	//	return;
-	//}
+	if (pev(this, pev_modelindex) != g_MdlFather
+	|| pev(this, pev_modelindex) != g_MdlMolly
+	|| pev(this, pev_modelindex) != g_MdlEightBall) {
+		return;
+	}
 
 	new Float:origin[3];
 	pev(this, pev_origin, origin);
