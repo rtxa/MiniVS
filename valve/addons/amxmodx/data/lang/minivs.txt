@@ -1,0 +1,35 @@
+[en]
+ROUND_DRAW = Draw!
+ROUND_SLAYERSWIN = Slayers WIN!
+ROUND_VAMPIRESWIN = Vampires WIN!
+CLASS_VAMP_EDGAR = Edgar
+CLASS_VAMP_NINA = Nina
+CLASS_VAMP_LOUIS = Louis
+CLASS_HUMAN_FATHER = Father D.
+CLASS_HUMAN_EIGHTBALL = 8-Ball
+CLASS_HUMAN_MOLLY = Molly
+TITLE_SLAYER = Slayer
+TITLE_VAMPIRE = Vampire
+MENU_CLASS = Select class:
+MENU_TEAM = Select team:
+NOTIF_RESURRECTED = %n resurrected
+NOTIF_STAKED = %n has staked %n
+NOTIF_KNOCKOUT = %n knocked down %n
+
+[es]
+ROUND_DRAW = Empate!
+ROUND_SLAYERSWIN = Ganan los VAMPIROS!
+ROUND_VAMPIRESWIN = Ganan los CAZAVAMPIROS!
+CLASS_VAMP_EDGAR = Edgardo
+CLASS_VAMP_NINA = Nina
+CLASS_VAMP_LOUIS = Luis
+CLASS_HUMAN_FATHER = Padre D.
+CLASS_HUMAN_EIGHTBALL = Bola-8
+CLASS_HUMAN_MOLLY = Molly
+TITLE_SLAYER = Cazavampiro
+TITLE_VAMPIRE = Vampiro
+MENU_CLASS = Seleccionar clase:
+MENU_TEAM = Seleccionar equipo:
+NOTIF_RESURRECTED = %n ha revivido
+NOTIF_STAKED = %n le clavo una estaca a %n
+NOTIF_KNOCKOUT = %n ha derribado a %n

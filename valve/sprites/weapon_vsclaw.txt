@@ -1,0 +1,6 @@
+5
+weapon          640 640hud6		0       200     170     45
+weapon_s        640 640hud6		0       200     170     45
+d_vsclaw        640 vs_640hud1		192     109     48      16
+ammo		640 vs_640hud7		216	28	24	24
+ammo2		640 vs_640hud7		8	28	24	24
