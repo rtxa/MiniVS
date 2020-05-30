@@ -96,8 +96,6 @@ enum _:Animation
 #define Offset_PowerTime 		Offset_fuser3
 #define Offset_Timer			Offset_fuser4
 
-new g_WeaponsId;
-
 new g_sModelIndexBloodDrop;
 new g_sModelIndexBloodSpray;
 
@@ -170,7 +168,7 @@ public TaskSetTimer(params[2], taskid) {
 	if (pev_valid(iItem) != 2)
 		return;
 
-	if (wpnmod_get_offset_int(iItem, Offset_WeaponId) != wpnId)
+	if (pev_serial(iItem) != wpnId)
 		return;
 
 	new time = floatround(wpnmod_get_offset_float(iItem, Offset_Timer));
@@ -200,8 +198,6 @@ public Knife_Spawn(const iItem)
 
 	// Give a default ammo to weapon
 	wpnmod_set_offset_int(iItem, Offset_iDefaultAmmo, 1);
-
-	wpnmod_set_offset_int(iItem, Offset_WeaponId, g_WeaponsId++);
 }
 
 //*[*********************************************/
@@ -313,7 +309,7 @@ public Knife_SecondaryAttack(const iItem, const iPlayer)
 
 	new params[2];
 	params[0] = iItem;
-	params[1] = wpnmod_get_offset_int(iItem, Offset_WeaponId);
+	params[1] = pev_serial(iItem);
 	TaskSetTimer(params, TASK_TIMER);	
 }
 
