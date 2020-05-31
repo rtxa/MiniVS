@@ -91,13 +91,12 @@ enum _:Animation
 
 #define Offset_trHit 			Offset_iuser1
 #define Offset_iSwing 			Offset_iuser2
-#define Offset_WeaponId         Offset_iuser3
-#define Offset_PowerIsOn 		Offset_iuser4
-#define Offset_PowerTime 		Offset_fuser3
-#define Offset_Timer			Offset_fuser4
+#define Offset_PowerTimeLeft	Offset_iuser3
 
 new g_sModelIndexBloodDrop;
 new g_sModelIndexBloodSpray;
+
+new g_FwSpecialAttack = -1;
 
 //*[*********************************************/
 //*[ Precache resources                         *
@@ -154,11 +153,9 @@ public plugin_init()
 	
 	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_Spawn, "Knife_Spawn");
 	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_Deploy, "Knife_Deploy");
-	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_Holster, "Knife_Holster");
 	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_Idle, "Knife_Idle");
 	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_PrimaryAttack, "Knife_PrimaryAttack");
 	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_SecondaryAttack, "Knife_SecondaryAttack");
-	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_ItemPostFrame, "Knife_WeaponTick");
 }
 
 public TaskSetTimer(params[2], taskid) {
@@ -171,17 +168,24 @@ public TaskSetTimer(params[2], taskid) {
 	if (pev_serial(iItem) != wpnId)
 		return;
 
-	new time = floatround(wpnmod_get_offset_float(iItem, Offset_Timer));
+	new iPlayer = pev(iItem, pev_owner);
+
+	new time = wpnmod_get_offset_int(iItem, Offset_PowerTimeLeft);
 
 	if (time >= 0) {
-		wpnmod_set_player_ammo(pev(iItem, pev_owner), WEAPON_SECONDARY_AMMO, floatround(wpnmod_get_offset_float(iItem, Offset_Timer)));
+		wpnmod_set_player_ammo(iPlayer, WEAPON_SECONDARY_AMMO, wpnmod_get_offset_int(iItem, Offset_PowerTimeLeft));
 		
 		if (time == 0) {
-			// show weapon is able to use again
-			wpnmod_set_player_ammo(pev(iItem, pev_owner), WEAPON_PRIMARY_AMMO, 1);
+			// weapon is able to use again
+			wpnmod_set_player_ammo(iPlayer, WEAPON_PRIMARY_AMMO, 1);
+			wpnmod_set_offset_float(iItem, Offset_flNextSecondaryAttack, 0.0);
+			
+			// call function callbacks
+			ExecuteForward(g_FwSpecialAttack, _, iItem, iPlayer);
+
 			return;
 		}
-		wpnmod_set_offset_float(iItem, Offset_Timer, time - 1.0);
+		wpnmod_set_offset_int(iItem, Offset_PowerTimeLeft, time - 1);
 		set_task(1.0, "TaskSetTimer", taskid, params, 2);
 	}
 }
@@ -207,23 +211,6 @@ public Knife_Spawn(const iItem)
 public Knife_Deploy(const iItem, const iPlayer, const iClip)
 {
 	return wpnmod_default_deploy(iItem, MODEL_VIEW, MODEL_PLAYER, ANIM_DRAW, ANIM_EXTENSION);
-}
-
-//*[*********************************************/
-//*[ Holster the weapon.                        *
-//*[*********************************************/
-
-public Knife_Holster(const iItem, const iPlayer, const iClip)
-{
-	// if player changes his weapon, he will lose the inmmunity granted by the cross
-	wpnmod_set_offset_int(iItem, Offset_PowerIsOn, false);
-}
-
-public Knife_WeaponTick(const iItem, const iPlayer) {
-	// power up time is over
-	if (wpnmod_get_offset_float(iItem, Offset_PowerTime) < get_gametime()) {
-		wpnmod_set_offset_int(iItem, Offset_PowerIsOn, false);
-	}
 }
 
 //*[*********************************************/
@@ -299,18 +286,18 @@ public Knife_SecondaryAttack(const iItem, const iPlayer)
 	}
 
 	wpnmod_set_offset_float(iItem, Offset_flTimeWeaponIdle, 5.0);
-	wpnmod_set_offset_float(iItem, Offset_flNextSecondaryAttack, VS_POWER_DELAY); 
+	wpnmod_set_offset_float(iItem, Offset_flNextSecondaryAttack, VS_POWER_DELAY + 5.0); // usar eel set_task, agrego estos segundos para q no se desincronize 
 
-	wpnmod_set_offset_int(iItem, Offset_PowerIsOn, true);
-	wpnmod_set_offset_float(iItem, Offset_PowerTime, get_gametime() + VS_POWER_TIME);
-
-	wpnmod_set_offset_float(iItem, Offset_Timer, VS_POWER_DELAY);
+	wpnmod_set_offset_int(iItem, Offset_PowerTimeLeft, floatround(VS_POWER_DELAY));
 	wpnmod_set_player_ammo(iPlayer, WEAPON_PRIMARY_AMMO, 0);
+
+	// call function callbacks
+	ExecuteForward(g_FwSpecialAttack, _, iItem, iPlayer);
 
 	new params[2];
 	params[0] = iItem;
 	params[1] = pev_serial(iItem);
-	TaskSetTimer(params, TASK_TIMER);	
+	TaskSetTimer(params, TASK_TIMER);
 }
 
 //*[*********************************************/
@@ -678,3 +665,26 @@ stock UTIL_DecalTrace(const iTrace, iDecalIndex)
 	
 	message_end();
 } 
+
+public plugin_natives() {
+	register_native("vs_claw_special_attack", "native_vs_claw_special_attack");
+}
+
+// to do: add posibility to unregister forwards, and to create multiple forward
+// for one works with only one... I'm comitting the same mistake as weapon mod for not adding
+// the possibility to do multiples hooks...
+public native_vs_claw_special_attack(plugin_id, argc) {
+	if (argc < 1)
+		return false;
+
+	new funcName[64]; 
+	get_string(1, funcName, charsmax(funcName)); // get callback function name
+
+	// iItem, iPlayer
+	g_FwSpecialAttack = CreateMultiForward(funcName, ET_STOP, FP_CELL, FP_CELL);
+
+	if (g_FwSpecialAttack == -1)
+		return false;
+
+	return true;
+}

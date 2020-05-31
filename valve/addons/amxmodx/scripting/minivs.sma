@@ -9,6 +9,7 @@
 #include <xs>
 #include <msgstocks>
 #include <hl_wpnmod>
+#include <minivs>
 
 #define PLUGIN  "MiniVS"
 #define VERSION "0.2"
@@ -208,7 +209,17 @@ public plugin_init() {
 	SetPevAllCorpses(pev_nextthink, get_gametime() + 0.1);
 	register_think("bodyque", "OnCorpse_Think");
 
+	vs_claw_special_attack("OnClawSpecialAttack");
+
 	RoundStart();
+}
+
+public OnClawSpecialAttack(iItem, iPlayer) {
+	if (vs_claw_get_power_timeleft(iItem) == 0) {
+		log_amx("Se acabo el poder Weapon %d Player %d", iItem, iPlayer);
+	} else {
+		log_amx("Se activo el poder Weapon %d Player %d", iItem, iPlayer);
+	}
 }
 
 public OnPlayerPreThink(id) {
@@ -1138,11 +1149,6 @@ stock SetBodyCorpsesLimit(limit = 4) {
 
 	// the last body needs to have the head of the queue as owner always (circular queue)
 	set_pev(body, pev_owner, queueHead);
-}
-
-// make sure to use it in a stake...
-stock vs_stake_is_powerup_on(ent) {
-	return wpnmod_get_offset_int(ent, Offset_iuser4);
 }
 
 stock wpnmod_give_item(const iPlayer, const szItem[])
