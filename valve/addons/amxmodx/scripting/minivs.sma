@@ -192,6 +192,9 @@ public plugin_init() {
 	RegisterHamPlayer(Ham_Killed, "OnPlayerKilled_Post", true);
 	RegisterHamPlayer(Ham_Player_Jump, "OnPlayerJump_Post", true);
 	
+	// vampire hook
+	vs_claw_special_attack("OnClawSpecialAttack");
+	
 	register_clcmd("spectate", "CmdSpectate");
 	register_clcmd("drop", "CmdDrop");
 
@@ -209,17 +212,24 @@ public plugin_init() {
 	SetPevAllCorpses(pev_nextthink, get_gametime() + 0.1);
 	register_think("bodyque", "OnCorpse_Think");
 
-	vs_claw_special_attack("OnClawSpecialAttack");
 
 	RoundStart();
 }
 
+// crashea cuando se desconecta despues del delay
 public OnClawSpecialAttack(iItem, iPlayer) {
-	if (vs_claw_get_power_timeleft(iItem) == 0) {
-		log_amx("Se acabo el poder Weapon %d Player %d", iItem, iPlayer);
-	} else {
-		log_amx("Se activo el poder Weapon %d Player %d", iItem, iPlayer);
+	if (vs_claw_get_power_timeleft(iItem) == 25) {
+		SetSpecialPower(iPlayer, false);
+	} else if (vs_claw_get_power_timeleft(iItem) == 30) {
+		SetSpecialPower(iPlayer);
 	}
+}
+
+SetSpecialPower(id, value = true) {
+	if (value)
+		set_user_rendering(id, kRenderFxNone, .render = kRenderTransTexture, .amount = 50);
+	else
+		set_user_rendering(id, kRenderFxNone, .render = kRenderNormal);
 }
 
 public OnPlayerPreThink(id) {
@@ -571,6 +581,8 @@ public OnPlayerKilled_Post(victim, attacker, shouldGib) {
 	}
 
 	if (victimTeam == TEAM_VAMPIRE) {
+		// remove any power when he dies, even if he didn't really (knocked out)
+		SetSpecialPower(victim, false);
 		if (!g_IsKnockOut[victim] && victim != attacker && attacker) {
 			if (GetPlayerClass(victim) != CLASS_VAMP_NINA) {
 				emit_sound(victim, CHAN_STATIC, SND_VAMP_DYING_MALE, 1.0, ATTN_NORM, 0, PITCH_NORM);
@@ -718,8 +730,11 @@ public RoundStart() {
 			hl_set_user_spectator(plr, false);
 		else
 			hl_user_spawn(plr);
+		SetSpecialPower(i, false);
 	}
 	client_print(0, print_center, "Round Started");
+
+	// reset any special pwoer set on vampires or whatever
 
 	g_RoundStarted = true;
 

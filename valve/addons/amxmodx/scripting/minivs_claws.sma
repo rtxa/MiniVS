@@ -170,21 +170,26 @@ public TaskSetTimer(params[2], taskid) {
 
 	new iPlayer = pev(iItem, pev_owner);
 
+	// safe check, sometimes owner is a weaponbox
+	if (!is_user_connected(iPlayer))
+		return;
+
 	new time = wpnmod_get_offset_int(iItem, Offset_PowerTimeLeft);
 
 	if (time >= 0) {
 		wpnmod_set_player_ammo(iPlayer, WEAPON_SECONDARY_AMMO, wpnmod_get_offset_int(iItem, Offset_PowerTimeLeft));
 		
+		// call function callbacks
+		ExecuteForward(g_FwSpecialAttack, _, iItem, iPlayer);
+
 		if (time == 0) {
 			// weapon is able to use again
 			wpnmod_set_player_ammo(iPlayer, WEAPON_PRIMARY_AMMO, 1);
 			wpnmod_set_offset_float(iItem, Offset_flNextSecondaryAttack, 0.0);
-			
-			// call function callbacks
-			ExecuteForward(g_FwSpecialAttack, _, iItem, iPlayer);
 
 			return;
 		}
+
 		wpnmod_set_offset_int(iItem, Offset_PowerTimeLeft, time - 1);
 		set_task(1.0, "TaskSetTimer", taskid, params, 2);
 	}
