@@ -284,10 +284,9 @@ public OnWeaponBox_OnGround(ent) {
 public OnCorpse_Think(this) {
 	set_pev(this, pev_nextthink, get_gametime() + 0.1);
 
+	new modelindex = pev(this, pev_modelindex);
 	// only you can drin blood humans corpses
-	if (pev(this, pev_modelindex) != g_MdlFather
-	|| pev(this, pev_modelindex) != g_MdlMolly
-	|| pev(this, pev_modelindex) != g_MdlEightBall) {
+	if (modelindex != g_MdlFather && modelindex != g_MdlMolly && modelindex != g_MdlEightBall) {
 		return;
 	}
 
