@@ -113,7 +113,7 @@ new g_RoundWinner;
 new g_TeamScore[HL_MAX_TEAMS];
 
 // global variables for players
-new bool:g_SendToSpec[MAX_PLAYERS + 1];
+new bool:g_SendToSpecVictim[MAX_PLAYERS + 1];
 new g_FallSoundPlayed[MAX_PLAYERS + 1];
 
 // vampire data
@@ -241,13 +241,12 @@ public OnPlayerPreThink(id) {
 		}
 	}
 
-	// this fixes multiple bodie corpses copying
-	/*if (g_SendToSpec[id]) {
-		// hack to avoid player create a deadcorpse
+	// hack: fix player creating multiple corpses when trying to respawn
+	if (g_SendToSpecVictim[id] && !hl_get_user_spectator(id)) {
 		set_ent_data_float(id, "CBasePlayer", "m_fDeadTime", get_gametime());
 		set_pev(id, pev_button, 0);
 		set_pev(id, pev_oldbuttons, 0);
-	}*/
+	}
 
 	if (g_IsKnockOut[id]) {
 		// hack to avoid player create a deadcorpse
@@ -448,7 +447,7 @@ public OnGetGameDescription() {
 
 public OnPlayerSpawn_Pre(id) {
 	// used in dead players
-	if (g_SendToSpec[id]) {
+	if (g_SendToSpecVictim[id]) {
 		return HAM_SUPERCEDE;
 	}
 
@@ -561,7 +560,7 @@ public OnPlayerKilled_Post(victim, attacker, shouldGib) {
 			return;
 
 		// send victim to spec
-		g_SendToSpec[victim] = true;
+		g_SendToSpecVictim[victim] = true;
 		set_task(3.0, "SendToSpec", TASK_SENDTOSPEC + victim);
 
 		if (!RoundNeedsToContinue())
@@ -596,9 +595,21 @@ public OnPlayerKilled_Post(victim, attacker, shouldGib) {
 public SendToSpec(taskid) {
 	new id = taskid - TASK_SENDTOSPEC;
 
-	if (g_SendToSpec[id]) {
+	if (g_SendToSpecVictim[id]) {
+		// hack: create player corpse manually
+		set_ent_data_float(id, "CBasePlayer", "m_fDeadTime", get_gametime());
+		set_pev(id, pev_button, IN_ATTACK);
+		set_pev(id, pev_oldbuttons, IN_ATTACK);
+
+		// dead player has already set CBasePlayer::PlayerDeathThink()
+		call_think(id);
+
+		// block spawn again
+		set_pev(id, pev_button, 0);
+		set_pev(id, pev_oldbuttons, 0);
+
+		// now that the corpse has been created, we can finnally send the player to spec
 		hl_set_user_spectator(id, true);
-		//g_SendToSpec[id] = false;
 	}
 }
 
@@ -717,7 +728,7 @@ public RoundStart() {
 	}
 	
 	// reset
-	arrayset(g_SendToSpec, false, sizeof(g_SendToSpec));
+	arrayset(g_SendToSpecVictim, false, sizeof(g_SendToSpecVictim));
 
 	new players[MAX_PLAYERS], numPlayers;
 	vs_get_players(players, numPlayers);
@@ -821,7 +832,7 @@ public CmdSpectate(id) {
 		hl_user_spawn(id);
 	} else {
 		// don't reset his team when he's send to spec only because he die
-		if (!g_SendToSpec[id]) {
+		if (!g_SendToSpecVictim[id]) {
 			SetPlayerTeam(id, TEAM_NONE);
 			SetPlayerClass(id, CLASS_NOCLASS);
 			DisplayTeamMenu(id);
