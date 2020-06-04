@@ -730,7 +730,7 @@ public RoundStart() {
 			hl_set_user_spectator(plr, false);
 		else
 			hl_user_spawn(plr);
-		SetSpecialPower(i, false);
+		SetSpecialPower(plr, false);
 	}
 	client_print(0, print_center, "Round Started");
 
