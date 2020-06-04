@@ -502,7 +502,6 @@ public OnPlayerTakeDamage_Pre(victim, inflictor, attacker, Float:damage, damaget
 	if (victimTeam == TEAM_VAMPIRE && attackerTeam == TEAM_SLAYER) {
 		// slayer has done enough damage, knockdown vampire
 		if (damage >= hl_get_user_health(victim) && !g_IsKnockOut[victim]) {
-			client_print(0, print_chat, "%l", "NOTIF_KNOCKOUT", attacker, victim);
 			// hack: we don't block damage so the knockback can work
 			// anyway, we are going to knock him down
 			set_pev(victim, pev_health, 10000.0);
