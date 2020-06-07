@@ -12,7 +12,7 @@
 #include <minivs>
 
 #define PLUGIN  "MiniVS"
-#define VERSION "0.2"
+#define VERSION "0.3"
 #define AUTHOR  "rtxA"
 
 #pragma semicolon 1

@@ -16,7 +16,7 @@
 #include <xs>
 
 #define PLUGIN "MiniVS Claws"
-#define VERSION "0.2"
+#define VERSION "0.3"
 #define AUTHOR "rtxa"
 
 #define TASK_TIMER 2009

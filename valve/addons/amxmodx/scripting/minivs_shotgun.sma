@@ -21,7 +21,7 @@
 #pragma semicolon 1
 
 #define PLUGIN "MiniVS Shotgun"
-#define VERSION "0.2"
+#define VERSION "0.3"
 #define AUTHOR "rtxA"
 
 //Configs
