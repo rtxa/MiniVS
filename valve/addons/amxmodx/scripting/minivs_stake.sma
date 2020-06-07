@@ -174,14 +174,20 @@ public TaskSetTimer(params[2], taskid) {
 	if (pev_serial(iItem) != wpnId)
 		return;
 
+	new iPlayer = pev(iItem, pev_owner);
+
+	// safe check, sometimes owner is a weaponbox and server will crash
+	if (!is_user_connected(iPlayer))
+		return;
+
 	new time = floatround(wpnmod_get_offset_float(iItem, Offset_Timer));
 
 	if (time >= 0) {
-		wpnmod_set_player_ammo(pev(iItem, pev_owner), WEAPON_SECONDARY_AMMO, floatround(wpnmod_get_offset_float(iItem, Offset_Timer)));
+		wpnmod_set_player_ammo(iPlayer, WEAPON_SECONDARY_AMMO, floatround(wpnmod_get_offset_float(iItem, Offset_Timer)));
 		
 		if (time == 0) {
 			// show weapon is able to use again
-			wpnmod_set_player_ammo(pev(iItem, pev_owner), WEAPON_PRIMARY_AMMO, 1);
+			wpnmod_set_player_ammo(iPlayer, WEAPON_PRIMARY_AMMO, 1);
 			return;
 		}
 
