@@ -323,7 +323,7 @@ public KSG_SecondaryAttack(const iItem, const iPlayer, iClip, iAmmo)
 	wpnmod_set_offset_int(iPlayer, Offset_iWeaponFlash, BRIGHT_GUN_FLASH);
 	wpnmod_set_offset_float(iItem, Offset_flNextPrimaryAttack, 1.5);
 	wpnmod_set_offset_float(iItem, Offset_flNextSecondaryAttack, 1.5);
-	wpnmod_set_offset_float(iItem, Offset_flPumpTime, get_gametime() + 0.9);
+	wpnmod_set_offset_float(iItem, Offset_flPumpTime, get_gametime() + 0.95);
 	wpnmod_set_offset_float(iItem, Offset_flTimeWeaponIdle, 15.0);
 	
 
