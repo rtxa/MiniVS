@@ -158,6 +158,10 @@ public plugin_init()
 	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_SecondaryAttack, "Knife_SecondaryAttack");
 }
 
+public plugin_end() {
+	DestroyForward(g_FwSpecialAttack);
+}
+
 public TaskSetTimer(params[2], taskid) {
 	new iItem = params[0];
 	new wpnId = params[1];
@@ -686,7 +690,7 @@ public native_vs_claw_special_attack(plugin_id, argc) {
 	get_string(1, funcName, charsmax(funcName)); // get callback function name
 
 	// iItem, iPlayer
-	g_FwSpecialAttack = CreateMultiForward(funcName, ET_STOP, FP_CELL, FP_CELL);
+	g_FwSpecialAttack = CreateOneForward(plugin_id, funcName, FP_CELL, FP_CELL);
 
 	if (g_FwSpecialAttack == -1)
 		return false;
