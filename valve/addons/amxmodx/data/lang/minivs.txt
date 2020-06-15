@@ -32,4 +32,4 @@ MENU_CLASS = Seleccionar clase:
 MENU_TEAM = Seleccionar equipo:
 NOTIF_RESURRECTED = %n ha revivido
 NOTIF_STAKED = %n le clavo una estaca a %n
-NOTIF_KNOCKOUT = %n ha derribado a %n
+NOTIF_KNOCKOUT = %n derribo a %n
