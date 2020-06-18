@@ -1186,6 +1186,11 @@ StartRoundTimer() {
 }
 
 public RoundTimerThink() {
+	if (g_RoundTime == 0) {
+		g_RoundWinner = TEAM_NONE;
+		RoundEnd();
+	}
+
 	if (RoundTimerCheck())
 		g_RoundTime--;
 	DisplayTimer();
