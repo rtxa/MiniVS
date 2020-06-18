@@ -5,11 +5,12 @@
 #include <fun>
 #include <hamsandwich>
 #include <hl_player_models_api>
-#include <hlstocks>
-#include <xs>
-#include <msgstocks>
 #include <hl_wpnmod>
+#include <hlstocks>
 #include <minivs>
+#include <msgstocks>
+#include <restore_map>
+#include <xs>
 
 #define PLUGIN  "MiniVS"
 #define VERSION "0.3"
@@ -789,6 +790,9 @@ public RoundStart() {
 
 	g_RoundTime = get_pcvar_num(g_pCvarRoundTime);
 	StartRoundTimer();
+
+	// restore all map stuff
+	hl_restore_all();
 
 	// remove any screen fade
 	fade_user_screen(0, _, _, ScreenFade_StayOut, 0, 0, 0, 0);
