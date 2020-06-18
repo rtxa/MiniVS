@@ -7,7 +7,7 @@
 #include <hlstocks>
 #include <xs>
 
-#define PLUGIN  "Send to Spec"
+#define PLUGIN  "GameDLL Send to Spec"
 #define VERSION "0.1"
 #define AUTHOR  "rtxA"
 
