@@ -523,14 +523,13 @@ public OnPlayerTakeDamage_Pre(victim, inflictor, attacker, Float:damage, damaget
 			if (!equal(classname, "weapon_vsstake"))
 				return HAM_SUPERCEDE;
 
-			client_print(0, print_chat, "%l", "NOTIF_STAKED", attacker, victim);
-
 			// don't let player kill the vampire at least one second later
-			if (g_KnockOutEndTime[victim] - get_gametime() < 1.0) {
+			new Float:knockOutStartTime = g_KnockOutEndTime[victim] - g_KnockOutTime[victim];
+			if (knockOutStartTime + 1.0 > get_gametime())
 				return HAM_SUPERCEDE;
-			}
 
 			// kill vampire
+			client_print(0, print_chat, "%l", "NOTIF_STAKED", attacker, victim);
 			set_pev(victim, pev_health, 1);
 			set_pev(victim, pev_deadflag, DEAD_NO);
 			SetHamParamFloat(4, 500.0);
