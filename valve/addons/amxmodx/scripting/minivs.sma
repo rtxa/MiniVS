@@ -199,6 +199,7 @@ public plugin_init() {
 	
 	// vampire hook
 	vs_claw_special_attack("OnClawSpecialAttack");
+	RegisterHam(Ham_Touch, "trigger_hurt", "OnTriggerHurtTouch_Pre");
 	
 	register_clcmd("spectate", "CmdSpectate");
 	register_clcmd("drop", "CmdDrop");
@@ -227,6 +228,18 @@ public OnClawSpecialAttack(iItem, iPlayer) {
 	} else if (vs_claw_get_power_timeleft(iItem) == 30) {
 		SetSpecialPower(iPlayer);
 	}
+}
+
+public OnTriggerHurtTouch_Pre(touched, toucher) {
+	if (IsPlayer(toucher)) {
+		if (GetPlayerTeam(toucher) == TEAM_SLAYER) {
+			// slayer don't get burn, only vampires
+			if (get_ent_data(touched, "CBaseToggle", "m_bitsDamageInflict") == DMG_BURN) {
+				return HAM_SUPERCEDE;
+			}
+		}
+	}
+	return HAM_IGNORED;
 }
 
 SetSpecialPower(id, value = true) {
