@@ -1005,7 +1005,7 @@ public HandlerClassMenu(id, menu, item) {
 	SetPlayerClass(id, class);
 
 	// check if round needs to continue everytime we change of class
-	if (!g_RoundStarted && !RoundNeedsToContinue()) {
+	if (g_RoundStarted && !RoundNeedsToContinue()) {
 		RoundEnd();
 	}
 
