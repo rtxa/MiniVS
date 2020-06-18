@@ -185,6 +185,9 @@ public plugin_init() {
 	register_clcmd("say !team", "CmdTeamMenu");
 	register_clcmd("say !class", "CmdClassMenu");
 
+	register_message(get_user_msgid("SayText"), "OnMsgSayText");
+	register_message(get_user_msgid("TextMsg"), "OnMsgTextMsg");
+
 	// player hooks
 	RegisterHamPlayer(Ham_Spawn, "OnPlayerSpawn_Pre");
 	RegisterHamPlayer(Ham_Spawn, "OnPlayerSpawn_Post", true);
@@ -1173,6 +1176,35 @@ public RoundTimerThink() {
 
 public RoundTimerCheck() {
 	return g_RoundStarted && g_RoundTime > 0 ? true : false;
+}
+
+public OnMsgTextMsg(msg_id, msg_dest, receiver) {
+	new text[191];
+	get_msg_arg_string(2, text, charsmax(text));
+	
+	if (containi(text, "switched to spectator mode") != -1)
+		return PLUGIN_HANDLED;
+
+	return PLUGIN_CONTINUE;
+}
+
+public OnMsgSayText(msg_id, msg_dest, receiver) {
+	new text[191];
+	get_msg_arg_string(2, text, charsmax(text));
+
+	new sender = get_msg_arg_int(1);
+
+	// player message
+	if (text[0] == 2) {
+		if (!is_user_alive(sender)) {
+			SetGlobalTransTarget(receiver);
+			replace(text, charsmax(text), "^x02", fmt("%c%l ", 2, "TAG_DEAD"));
+		}
+	}
+
+	set_msg_arg_string(2, text);
+
+	return PLUGIN_CONTINUE;
 }
 
 /* ===================

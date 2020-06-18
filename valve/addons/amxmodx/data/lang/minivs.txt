@@ -15,6 +15,7 @@ MENU_TEAM = Select team:
 NOTIF_RESURRECTED = %n resurrected
 NOTIF_STAKED = %n has staked %n
 NOTIF_KNOCKOUT = %n knocked down %n
+TAG_DEAD = (DEAD)
 
 [es]
 ROUND_DRAW = Empate!
@@ -33,3 +34,4 @@ MENU_TEAM = Seleccionar equipo:
 NOTIF_RESURRECTED = %n ha revivido
 NOTIF_STAKED = %n le clavo una estaca a %n
 NOTIF_KNOCKOUT = %n derribo a %n
+TAG_DEAD = (MUERTO)
