@@ -107,6 +107,7 @@ enum (+= 100) {
 } 
 
 // gamemode
+new g_DisableDeathPenalty;
 new g_RoundTime;
 new g_RoundStarted;
 new g_RoundWinner;
@@ -211,7 +212,6 @@ public plugin_init() {
 	SetBodyCorpsesLimit(MAX_BODY_CORPSES);
 	SetPevAllCorpses(pev_nextthink, get_gametime() + 0.1);
 	register_think("bodyque", "OnCorpse_Think");
-
 
 	RoundStart();
 }
@@ -458,6 +458,7 @@ public OnPlayerSpawn_Post(id) {
 	g_FallSoundPlayed[id] = false;
 	g_HasToBeKnockOut[id] = false;
 
+	// player is trying to spawn and is still dead, ignore...
 	if (!is_user_alive(id))
 		return;
 		
@@ -522,6 +523,8 @@ public OnPlayerTakeDamage_Pre(victim, inflictor, attacker, Float:damage, damaget
 			if (!equal(classname, "weapon_vsstake"))
 				return HAM_SUPERCEDE;
 
+			client_print(0, print_chat, "%l", "NOTIF_STAKED", attacker, victim);
+
 			// don't let player kill the vampire at least one second later
 			if (g_KnockOutEndTime[victim] - get_gametime() < 1.0) {
 				return HAM_SUPERCEDE;
@@ -554,6 +557,20 @@ public OnPlayerTakeDamage_Post(victim, inflictor, attacker, Float:damage, damage
 }
 
 public OnPlayerKilled_Post(victim, attacker, shouldGib) {
+	new victimTeam = GetPlayerTeam(victim);
+	new attackerTeam = GetPlayerTeam(attacker);
+
+	// if there aren't enough players, ignore score of this round
+	if (g_DisableDeathPenalty) {
+		hl_set_user_deaths(victim, hl_get_user_deaths(victim) - 1);
+		if (IsPlayer(attacker)) {
+			if (victimTeam != attackerTeam && victim != attacker)
+				hl_set_user_frags(attacker, hl_get_user_frags(attacker) - 1);
+			else
+				hl_set_user_frags(attacker, hl_get_user_frags(attacker) + 1);
+		}
+	}
+
 	if (g_RoundStarted) {
 		if (g_IsKnockOut[victim])
 			return;
@@ -566,8 +583,6 @@ public OnPlayerKilled_Post(victim, attacker, shouldGib) {
 			RoundEnd();
 	}
 
-	new victimTeam = GetPlayerTeam(victim);
-	new attackerTeam = GetPlayerTeam(attacker);
 
 	if (victimTeam == TEAM_SLAYER && attackerTeam == TEAM_VAMPIRE) {
 		switch (random_num(1, 3)) {
@@ -577,16 +592,16 @@ public OnPlayerKilled_Post(victim, attacker, shouldGib) {
 		}
 	}
 
+	// note: vampire simulates being dead when is knocked down
 	if (victimTeam == TEAM_VAMPIRE) {
-		// remove any power when he dies, even if he didn't really (knocked out)
 		SetSpecialPower(victim, false);
-		if (!g_IsKnockOut[victim] && victim != attacker && attacker) {
-			if (GetPlayerClass(victim) != CLASS_VAMP_NINA) {
+
+		// play death sound
+		if (!g_IsKnockOut[victim]) {
+			if (GetPlayerClass(victim) != CLASS_VAMP_NINA)
 				emit_sound(victim, CHAN_STATIC, SND_VAMP_DYING_MALE, 1.0, ATTN_NORM, 0, PITCH_NORM);
-			} else {
+			else
 				emit_sound(victim, CHAN_STATIC, SND_VAMP_DYING_FEMALE, 1.0, ATTN_NORM, 0, PITCH_NORM);
-			}
-			client_print(0, print_chat, "%l", "NOTIF_STAKED", attacker, victim);
 		}
 	}
 }
@@ -651,6 +666,8 @@ public TaskPutInServer(taskid) {
 		ChangePlayerTeam(id, id % 2 ? TEAM_SLAYER : TEAM_VAMPIRE);
 		SetPlayerTeam(id, id % 2 ? TEAM_SLAYER : TEAM_VAMPIRE);
 		SetPlayerClass(id, id % 2 ? random_num(CLASS_HUMAN_FATHER, CLASS_HUMAN_EIGHTBALL) : random_num(CLASS_VAMP_LOUIS, CLASS_VAMP_NINA));
+		if (g_RoundStarted && !RoundNeedsToContinue())
+			RoundEnd();
 	}
 }
 
@@ -695,6 +712,20 @@ stock vs_get_players(players[MAX_PLAYERS], &numPlayers) {
 	}
 }
 
+stock vs_get_teamnum(teamid) {
+	new players[MAX_PLAYERS], numPlayers;
+	vs_get_players(players, numPlayers);
+
+	new num, plr;
+	for (new i; i < numPlayers; i++) {
+		plr = players[i];
+		if (GetPlayerTeam(plr) == teamid && GetPlayerClass(plr) != CLASS_NOCLASS)
+			num++;
+	}
+
+	return num;
+}
+
 stock vs_get_playersnum() {
 	new players[32], numPlayers;
 	vs_get_players(players, numPlayers); 
@@ -721,29 +752,36 @@ public RoundStart() {
 	if (g_RoundStarted)
 		return;
 
-	if (vs_get_playersnum() < 2) {
+	if (vs_get_playersnum() < 1) {
 		set_task(1.0, "RoundStart", TASK_ROUNDSTART);
 		return;
 	}
-	
-	// reset
-	arrayset(g_SendToSpecVictim, false, sizeof(g_SendToSpecVictim));
 
+	g_DisableDeathPenalty = false;
+
+	// ignore score of this round if there aren't enough players in both teams
+	if (vs_get_teamnum(TEAM_SLAYER) < 1 || vs_get_teamnum(TEAM_VAMPIRE) < 1) {
+		g_DisableDeathPenalty = true;
+	}
+
+	// get players with team and class already set
 	new players[MAX_PLAYERS], numPlayers;
 	vs_get_players(players, numPlayers);
 
 	new plr;
 	for (new i; i < numPlayers; i++) {
 		plr = players[i];
+		// new round, reset some stuff
+		g_SendToSpecVictim[plr] = false;
+		SetSpecialPower(plr, false);
+
 		if (hl_get_user_spectator(plr))
 			hl_set_user_spectator(plr, false);
 		else
 			hl_user_spawn(plr);
-		SetSpecialPower(plr, false);
 	}
-	client_print(0, print_center, "Round Started");
 
-	// reset any special pwoer set on vampires or whatever
+	client_print(0, print_center, "Round Started");
 
 	g_RoundStarted = true;
 
@@ -760,6 +798,12 @@ public bool:RoundNeedsToContinue() {
 
 	if (humans > 0 && vamps > 0)
 		return true;
+
+	// the score of this round is ignored
+	if (g_DisableDeathPenalty) {
+		g_RoundWinner = TEAM_NONE;
+		return false;
+	}
 
 	// vampires win
 	if (vamps > humans) {
@@ -794,7 +838,6 @@ public RoundEnd() {
 			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_VAMPIRESWIN", "TITLE_SLAYER", g_TeamScore[TEAM_SLAYER - 1], "TITLE_VAMPIRE", g_TeamScore[TEAM_VAMPIRE - 1]);
 		}
 		case TEAM_NONE: {
-			//client_print(0, print_center, "%l", "ROUND_DRAW");
 			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_DRAW", "TITLE_SLAYER", g_TeamScore[TEAM_SLAYER - 1], "TITLE_VAMPIRE", g_TeamScore[TEAM_VAMPIRE - 1]);
 			PlaySound(0, SND_ROUND_DRAW);
 		} 
@@ -959,10 +1002,9 @@ public HandlerClassMenu(id, menu, item) {
 	new class = str_to_num(info);
 	SetPlayerClass(id, class);
 
-	if (!g_RoundStarted) {
-		if (hl_get_user_spectator(id)) {
-			hl_set_user_spectator(id, false);
-		}
+	// check if round needs to continue everytime we change of class
+	if (!g_RoundStarted && !RoundNeedsToContinue()) {
+		RoundEnd();
 	}
 
 	// block intro sound
