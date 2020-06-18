@@ -23,6 +23,7 @@ public OnUpdateClientData_Pre(id) {
     // avoid sending update client data to players who haven't join yet
     // or they scoreboard will get screwed
     if (!g_PutInServer[id]) {
+        set_pev(id, pev_iuser1, OBS_ROAMING);
         return HAM_SUPERCEDE;
     }
     return HAM_IGNORED;
