@@ -88,9 +88,8 @@ public pfn_keyvalue(ent) {
 			ArrayPushCell(g_BreakPointsList, entity);
 		} else if (equal(key, "points")) {
 			set_pev(entity, Pev_BreakPoints, str_to_num(value));			
-		} else {
-			DispatchKeyValue(entity, key, value);
 		}
+		DispatchKeyValue(entity, key, value);
 	}
 
 	return PLUGIN_CONTINUE;
