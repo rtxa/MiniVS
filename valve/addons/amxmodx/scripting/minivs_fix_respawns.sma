@@ -18,9 +18,23 @@ enum {
 	TEAM_VAMPIRE = 2 // red color
 };
 
+#define Pev_BreakPoints pev_iuser3
+
+new Array:g_BreakPointsList;
+
+public plugin_precache() {
+	g_BreakPointsList = ArrayCreate();
+}
+
 public plugin_init() {
 	register_plugin(PLUGIN, VERSION, AUTHOR);
 
+	// spawn all func_breakpoints
+	for (new i; i < ArraySize(g_BreakPointsList); i++) {
+		dllfunc(DLLFunc_Spawn, ArrayGetCell(g_BreakPointsList, i));
+	}
+
+	// create working spawns
 	if (g_CustomSpawnsExist) {
 		CreateGameTeamMaster("team1", TEAM_SLAYER);
 		CreateGameTeamMaster("team2", TEAM_VAMPIRE);
@@ -47,6 +61,7 @@ public pfn_keyvalue(ent) {
 	new Float:vector[3];
 	StrToVec(value, vector);
 
+	// ================= info_player_slayer and info_player_vampire ===========================
 	static spawn;
 	if (equal(classname, "info_player_slayer")) {
 		g_CustomSpawnsExist = true;
@@ -67,9 +82,27 @@ public pfn_keyvalue(ent) {
 			set_pev(spawn, pev_angles, vector);
 		}
 	}
-	
+
+	// ================= func_breakpoints ===========================
+	static entity;
+	if (equal(classname, "func_breakpoints")) {
+		if (equal(key, "model")) {
+			entity = create_entity("func_breakable");
+			// no need to change classname for now, is useful to leave 
+			// intact the classname so restore map api can restore the breakable
+			//set_pev(entity, pev_classname, "func_breakpoints");
+			ArrayPushCell(g_BreakPointsList, entity);
+		} else if (equal(key, "points")) {
+			set_pev(entity, Pev_BreakPoints, str_to_num(value));			
+		} else {
+			DispatchKeyValue(entity, key, value);
+		}
+	}
+
 	return PLUGIN_CONTINUE;
 }
+
+// ================= stocks ===========================
 
 // the parsed string is in this format "x y z" e.g "128 0 256"
 stock Float:StrToVec(const string[], Float:vector[3]) {
