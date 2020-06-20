@@ -6,17 +6,17 @@
 #include <hamsandwich>
 #include <hlstocks>
 
-#define PLUGIN  "MiniVS Fix Map Respawns"
-#define VERSION "0.1"
+#define PLUGIN  "MiniVS BSP Compat"
+#define VERSION "0.3"
 #define AUTHOR  "rtxA"
-
-new bool:g_CustomSpawnsExist;
 
 enum {
 	TEAM_NONE = 0,
 	TEAM_SLAYER = 4, // green color
 	TEAM_VAMPIRE = 2 // red color
 };
+
+new bool:g_CustomSpawnsExist;
 
 #define Pev_BreakPoints pev_iuser3
 
@@ -34,22 +34,16 @@ public plugin_init() {
 		dllfunc(DLLFunc_Spawn, ArrayGetCell(g_BreakPointsList, i));
 	}
 
-	// create working spawns
+	// create working team spawns
 	if (g_CustomSpawnsExist) {
 		CreateGameTeamMaster("team1", TEAM_SLAYER);
 		CreateGameTeamMaster("team2", TEAM_VAMPIRE);
-		RemoveUselessSpawns();
+		RemoveNoTeamSpawns();
 	}
 }
-// remove deathmatch spawns so team spawns can work correctly
-RemoveUselessSpawns() {
-	new ent, master[32];
-	while ((ent = find_ent_by_class(ent, "info_player_deathmatch"))) {
-		pev(ent, pev_netname, master, charsmax(master));
-		if (!equal(master, "team1") && !equal(master, "team2")) {
-			remove_entity(ent);
-		} 
-	}
+
+public plugin_end() {
+	ArrayDestroy(g_BreakPointsList);
 }
 
 /* Get data of entities from this gamemode
@@ -61,7 +55,7 @@ public pfn_keyvalue(ent) {
 	new Float:vector[3];
 	StrToVec(value, vector);
 
-	// ================= info_player_slayer and info_player_vampire ===========================
+	// info_player_slayer and info_player_vampire
 	static spawn;
 	if (equal(classname, "info_player_slayer")) {
 		g_CustomSpawnsExist = true;
@@ -83,7 +77,7 @@ public pfn_keyvalue(ent) {
 		}
 	}
 
-	// ================= func_breakpoints ===========================
+	// func_breakpoints
 	static entity;
 	if (equal(classname, "func_breakpoints")) {
 		if (equal(key, "model")) {
@@ -118,4 +112,15 @@ stock CreateGameTeamMaster(name[], teamid) {
 	set_pev(ent, pev_targetname, name);
 	DispatchKeyValue(ent, "teamindex", fmt("%i", teamid - 1));
 	return ent;
+}
+
+// remove deathmatch spawns so the team spawns can work correctly
+stock RemoveNoTeamSpawns() {
+	new ent, master[32];
+	while ((ent = find_ent_by_class(ent, "info_player_deathmatch"))) {
+		pev(ent, pev_netname, master, charsmax(master));
+		if (!equal(master, "team1") && !equal(master, "team2")) {
+			remove_entity(ent);
+		} 
+	}
 }
