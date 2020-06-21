@@ -701,7 +701,7 @@ public client_disconnected(id) {
 		SetPlayerClass(id, CLASS_NOCLASS);
 	}
 
-	g_KnockOutTime[id] = 0.0;
+	g_IsKnockOut[id] = false;
 }
 
 public client_remove(id) {
@@ -891,7 +891,14 @@ public CmdSpectate(id) {
 
 		//hl_set_player_team(id, GetPlayerTeam(id));
 		hl_user_spawn(id);
+
 	} else {
+
+		// remove player from knock out before send to spec
+		if (g_IsKnockOut[id]) {
+			g_IsKnockOut[id] = false;
+		}
+
 		// don't reset his team when he's send to spec only because he die
 		if (!g_SendToSpecVictim[id]) {
 			SetPlayerTeam(id, TEAM_NONE);
