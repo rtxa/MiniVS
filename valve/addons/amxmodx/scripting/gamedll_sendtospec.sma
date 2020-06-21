@@ -140,6 +140,8 @@ stock set_user_spectator(id)
         message_end();
     }
 
+    // note: isn't possible to register this message from AMXX
+    // a metamod or amxx module is required for this, perhaps orpheu too
     static Spectator;
     if (Spectator || (Spectator = get_user_msgid("Spectator"))) {
         message_begin(MSG_ALL, Spectator);
