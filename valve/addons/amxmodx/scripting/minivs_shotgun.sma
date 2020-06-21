@@ -1,13 +1,11 @@
 /*
-*	Weapon:KSG-12
-*	Author:BIGs & X - RaY
+*	Weapon: Vampire-Slayer Shotgun
+*	Author: rtxa
 *	
-*	Thanks - Lev
+*	Based on KSG-12 from BIGs & X - RaY
 *
 *	Community HL-HEV | All For Half-Life [https://hl-hev.ru/]
 */
-
-// used this gun as a base, wasn't easy, lot of things have to be fixed like the insertion, reload, delay, etc.
 
 #include <amxmodx>
 #include <hl_wpnmod>
@@ -20,7 +18,7 @@
 #define VERSION "0.3"
 #define AUTHOR "rtxA"
 
-//Configs
+// Configs
 #define WEAPON_NAME "weapon_vsshotgun"
 #define WEAPON_SLOT	3
 #define WEAPON_POSITION	4
@@ -60,7 +58,7 @@
 #define VECTOR_CONE_DM_SHOTGUN	        Float:{ 0.08716, 0.04362, 0.00 } // 10 degrees by 5 degrees
 #define VECTOR_CONE_DM_DOUBLESHOTGUN    Float:{ 0.17365, 0.04362, 0.00 } // 20 degrees by 5 degrees
 
-enum _:cz_VUL
+enum
 {
 	ANIM_IDLE,
 	ANIM_SHOOT1,
@@ -80,7 +78,7 @@ new g_sSmoke;
 public plugin_init()
 {
 	register_plugin(PLUGIN, VERSION, AUTHOR);
-	new KSG = wpnmod_register_weapon
+	new WPN = wpnmod_register_weapon
 	(
 		WEAPON_NAME,
 		WEAPON_SLOT,
@@ -93,14 +91,14 @@ public plugin_init()
 		WEAPON_FLAGS,
 		WEAPON_WEIGHT
 	);
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_Spawn, 	"KSG_Spawn" );
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_Deploy, "KSG_Deploy" );
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_Idle, "KSG_Idle" );
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_PrimaryAttack, "KSG_PrimaryAttack" );
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_SecondaryAttack, "KSG_SecondaryAttack" );
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_Reload, "KSG_Reload" );
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_Holster, "KSG_Holster" );
-	wpnmod_register_weapon_forward(KSG, Fwd_Wpn_ItemPostFrame, "KSG_WeaponTick");
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_Spawn, 	"WPN_Spawn" );
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_Deploy, "WPN_Deploy" );
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_Idle, "WPN_Idle" );
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_PrimaryAttack, "WPN_PrimaryAttack" );
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_SecondaryAttack, "WPN_SecondaryAttack" );
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_Reload, "WPN_Reload" );
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_Holster, "WPN_Holster" );
+	wpnmod_register_weapon_forward(WPN, Fwd_Wpn_ItemPostFrame, "WPN_WeaponTick");
 }
 
 public plugin_precache()
@@ -122,7 +120,7 @@ public plugin_precache()
 	g_sSmoke = PRECACHE_MODEL(WEAPON_SMOKE_SPR);
 }
 
-public KSG_Spawn(const iItem)
+public WPN_Spawn(const iItem)
 {
 	//Set model to floor
 	SET_MODEL(iItem, MODEL_WORLD);
@@ -131,17 +129,17 @@ public KSG_Spawn(const iItem)
 	wpnmod_set_offset_int(iItem, Offset_iDefaultAmmo, WEAPON_DEFAULT_AMMO);
 }
 
-public KSG_Deploy(const iItem, const iPlayer, const iClip)
+public WPN_Deploy(const iItem, const iPlayer, const iClip)
 {
 	return wpnmod_default_deploy(iItem, MODEL_VIEW, MODEL_PLAYER, ANIM_DRAW, ANIM_EXTENSION);
 }
 
-public KSG_Holster(const iItem ,iPlayer)
+public WPN_Holster(const iItem ,iPlayer)
 {
 	wpnmod_set_offset_int(iItem, Offset_iInSpecialReload, 0);
 }
 
-public KSG_Idle(const iItem, const iPlayer, const iClip, const iAmmo)
+public WPN_Idle(const iItem, const iPlayer, const iClip, const iAmmo)
 {
 	wpnmod_reset_empty_sound(iItem);
 
@@ -154,13 +152,13 @@ public KSG_Idle(const iItem, const iPlayer, const iClip, const iAmmo)
 	
 	if( !iClip && !fInSpecialReload && iAmmo )
 	{
-		KSG_Reload( iItem, iPlayer, iClip, iAmmo );
+		WPN_Reload( iItem, iPlayer, iClip, iAmmo );
 	}
 	else if( fInSpecialReload != 0)
 	{
 		if( iClip != WEAPON_MAX_CLIP && iAmmo)
 		{
-			KSG_Reload( iItem, iPlayer, iClip, iAmmo );
+			WPN_Reload( iItem, iPlayer, iClip, iAmmo );
 		}
 		else
 		{
@@ -193,11 +191,11 @@ public KSG_Idle(const iItem, const iPlayer, const iClip, const iAmmo)
 	}
 }
 
-public KSG_ItemPostFrame(const iItem, const iPlayer, const iClip, const iAmmo) {
-	KSG_WeaponTick(iItem, iPlayer, iClip, iAmmo);
+public WPN_ItemPostFrame(const iItem, const iPlayer, const iClip, const iAmmo) {
+	WPN_WeaponTick(iItem, iPlayer, iClip, iAmmo);
 }
 
-public KSG_WeaponTick(const iItem, const iPlayer, const iClip, const iAmmo) {
+public WPN_WeaponTick(const iItem, const iPlayer, const iClip, const iAmmo) {
 	new Float:pumpTime = wpnmod_get_offset_float(iItem, Offset_flPumpTime);
 	if ( pumpTime && pumpTime < get_gametime() )
 	{	
@@ -207,7 +205,7 @@ public KSG_WeaponTick(const iItem, const iPlayer, const iClip, const iAmmo) {
 	}
 }
 
-public KSG_Reload(const iItem, const iPlayer, const iClip, const iAmmo )
+public WPN_Reload(const iItem, const iPlayer, const iClip, const iAmmo )
 {
 	if (iAmmo <= 0 || iClip >= WEAPON_MAX_CLIP)
 	{
@@ -251,7 +249,7 @@ public KSG_Reload(const iItem, const iPlayer, const iClip, const iAmmo )
 
 }
 
-public KSG_PrimaryAttack(const iItem, const iPlayer, iClip)
+public WPN_PrimaryAttack(const iItem, const iPlayer, iClip)
 {
 	if (pev(iPlayer, pev_waterlevel) == 3 || iClip <= 0)
 	{
@@ -293,7 +291,7 @@ public KSG_PrimaryAttack(const iItem, const iPlayer, iClip)
 	wpnmod_set_offset_int(iItem, Offset_iInSpecialReload, 0);
 }
 
-public KSG_SecondaryAttack(const iItem, const iPlayer, iClip, iAmmo)
+public WPN_SecondaryAttack(const iItem, const iPlayer, iClip, iAmmo)
 {
 	// play empty sound if we are in water or magazine is empty
 	if (pev(iPlayer, pev_waterlevel) == 3)
@@ -305,7 +303,7 @@ public KSG_SecondaryAttack(const iItem, const iPlayer, iClip, iAmmo)
 
 	if (iClip <= 1) {
 		// auto reload
-		KSG_Reload(iItem, iPlayer, iClip, iAmmo);
+		WPN_Reload(iItem, iPlayer, iClip, iAmmo);
 		if (iClip == 0) {
 			wpnmod_play_empty_sound(iItem);
 		}
