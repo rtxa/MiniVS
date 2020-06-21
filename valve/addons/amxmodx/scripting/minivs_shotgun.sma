@@ -30,7 +30,7 @@
 #define WEAPON_DEFAULT_AMMO	 125
 #define WEAPON_FLAGS	0
 #define WEAPON_WEIGHT	10
-#define WEAPON_DAMAGE	15.0
+#define WEAPON_DAMAGE	20.0
 
 // Models
 #define MODEL_WORLD	    "models/w_weaponbox.mdl"
