@@ -1,9 +1,12 @@
-/*[ AMX Mod X
-*	Combat Knife.
+/*
+*	Weapon: Vampire-Slayer Claws
+*	Author: rtxa
+*	
+*	Based on Combat Knife from Kord
 *
-* http://aghl.ru/forum/ - Russian Half-Life and Adrenaline Gamer Community
+* 	http://aghl.ru/forum/ - Russian Half-Life and Adrenaline Gamer Community
 *
-* This file is provided as is (no warranties)
+* 	This file is provided as is (no warranties)
 */
 
 #pragma semicolon 1
@@ -35,8 +38,8 @@
 #define WEAPON_WEIGHT			    0
 #define WEAPON_DAMAGE			    90.0
 
-#define	KNIFE_BODYHIT_VOLUME		128
-#define	KNIFE_WALLHIT_VOLUME		512
+#define	STAKE_BODYHIT_VOLUME		128
+#define	STAKE_WALLHIT_VOLUME		512
 
 #define VS_POWER_DELAY				30.0
 #define VS_POWER_TIME				5.0
@@ -137,7 +140,7 @@ public plugin_init()
 {
 	register_plugin(PLUGIN, VERSION, AUTHOR);
 	
-	new iKnife = wpnmod_register_weapon	
+	new iWpn = wpnmod_register_weapon	
 	(
 		WEAPON_NAME,
 		WEAPON_SLOT,
@@ -151,11 +154,11 @@ public plugin_init()
 		WEAPON_WEIGHT
 	);
 	
-	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_Spawn, "Knife_Spawn");
-	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_Deploy, "Knife_Deploy");
-	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_Idle, "Knife_Idle");
-	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_PrimaryAttack, "Knife_PrimaryAttack");
-	wpnmod_register_weapon_forward(iKnife, Fwd_Wpn_SecondaryAttack, "Knife_SecondaryAttack");
+	wpnmod_register_weapon_forward(iWpn, Fwd_Wpn_Spawn, "WPN_Spawn");
+	wpnmod_register_weapon_forward(iWpn, Fwd_Wpn_Deploy, "WPN_Deploy");
+	wpnmod_register_weapon_forward(iWpn, Fwd_Wpn_Idle, "WPN_Idle");
+	wpnmod_register_weapon_forward(iWpn, Fwd_Wpn_PrimaryAttack, "WPN_PrimaryAttack");
+	wpnmod_register_weapon_forward(iWpn, Fwd_Wpn_SecondaryAttack, "WPN_SecondaryAttack");
 }
 
 public plugin_end() {
@@ -204,7 +207,7 @@ public TaskSetTimer(params[2], taskid) {
 //*[ Weapon spawn.                              *
 //*[*********************************************/
 
-public Knife_Spawn(const iItem)
+public WPN_Spawn(const iItem)
 {
 	// Setting world model
 	SET_MODEL(iItem, MODEL_WORLD);
@@ -217,7 +220,7 @@ public Knife_Spawn(const iItem)
 //*[ Deploys the weapon.                        *
 //*[*********************************************/
 
-public Knife_Deploy(const iItem, const iPlayer, const iClip)
+public WPN_Deploy(const iItem, const iPlayer, const iClip)
 {
 	return wpnmod_default_deploy(iItem, MODEL_VIEW, MODEL_PLAYER, ANIM_DRAW, ANIM_EXTENSION);
 }
@@ -226,7 +229,7 @@ public Knife_Deploy(const iItem, const iPlayer, const iClip)
 //*[ Displays the idle animation for the weapon.*
 //*[*********************************************/
 
-public Knife_Idle(const iItem)
+public WPN_Idle(const iItem)
 {
 	if (wpnmod_get_offset_float(iItem, Offset_flTimeWeaponIdle) > 0.0)
 	{
@@ -267,11 +270,11 @@ public Knife_Idle(const iItem)
 //*[**********************************************/
 
 
-public Knife_PrimaryAttack(const iItem, const iPlayer)
+public WPN_PrimaryAttack(const iItem, const iPlayer)
 {
 	emit_sound(iPlayer, CHAN_WEAPON, SOUND_MISS_1, 1.0, ATTN_NORM, 0, PITCH_NORM);
 
-	Knife_Swing(iItem, iPlayer, 1);
+	WPN_Swing(iItem, iPlayer, 1);
 
 	wpnmod_set_offset_float(iItem, Offset_flTimeWeaponIdle, 5.0);
 }
@@ -281,7 +284,7 @@ public Knife_PrimaryAttack(const iItem, const iPlayer)
 //*[*********************************************/
 
 // inmunidad dura 5 segundos, tiempo de espera 30 segundos
-public Knife_SecondaryAttack(const iItem, const iPlayer)
+public WPN_SecondaryAttack(const iItem, const iPlayer)
 {	
 	wpnmod_send_weapon_anim(iItem, ANIM_POWER);
     
@@ -310,7 +313,7 @@ public Knife_SecondaryAttack(const iItem, const iPlayer)
 }
 
 //*[*********************************************/
-//*[ Knife damage functions.                    *
+//*[ Weapon damage functions.                    *
 //*[*********************************************/
 
 FindHullIntersection(const Float: vecSrc[3], &iTrace, const Float: vecMins[3], const Float: vecMaxs[3], const iEntity)
@@ -379,7 +382,7 @@ FindHullIntersection(const Float: vecSrc[3], &iTrace, const Float: vecMins[3], c
 	}
 }
 
-Knife_Swing(const iItem, const iPlayer, const iFirst)
+WPN_Swing(const iItem, const iPlayer, const iFirst)
 {	
 	#define Instance(%0) ((%0 == -1) ? 0 : %0)
 	
@@ -525,7 +528,7 @@ Knife_Swing(const iItem, const iPlayer, const iFirst)
 				case 2: emit_sound(iPlayer, CHAN_ITEM, SOUND_HIT_FLESH_3, 1.0, ATTN_NORM, 0, PITCH_NORM);
 			}
 				
-			wpnmod_set_offset_int(iPlayer, Offset_iWeaponVolume, KNIFE_BODYHIT_VOLUME);
+			wpnmod_set_offset_int(iPlayer, Offset_iWeaponVolume, STAKE_BODYHIT_VOLUME);
 				
 			if (!ExecuteHamB(Ham_IsAlive, iEntity))
 			{
@@ -547,7 +550,7 @@ Knife_Swing(const iItem, const iPlayer, const iFirst)
 			wpnmod_set_offset_int(iItem, Offset_trHit, iTrace);
 		}
 			
-		wpnmod_set_offset_int(iPlayer, Offset_iWeaponVolume, KNIFE_WALLHIT_VOLUME);
+		wpnmod_set_offset_int(iPlayer, Offset_iWeaponVolume, STAKE_WALLHIT_VOLUME);
 		wpnmod_set_offset_float(iItem, Offset_flNextPrimaryAttack, 0.5);
 
 		UTIL_DecalTrace(iTrace, get_decal_index("{shot5") + random_num(0, 4));
