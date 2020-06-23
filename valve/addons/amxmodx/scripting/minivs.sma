@@ -595,18 +595,15 @@ public OnPlayerKilled_Post(victim, attacker, shouldGib) {
 		}
 	}
 
-	if (g_RoundStarted) {
-		if (g_IsKnockOut[victim])
-			return;
+	if (g_IsKnockOut[victim])
+		return;
 
-		// send victim to spec
-		g_SendToSpecVictim[victim] = true;
-		set_task(3.0, "SendToSpec", TASK_SENDTOSPEC + victim);
+	// send victim to spec
+	g_SendToSpecVictim[victim] = true;
+	set_task(3.0, "SendToSpec", TASK_SENDTOSPEC + victim);
 
-		if (!RoundNeedsToContinue())
-			RoundEnd();
-	}
-
+	if (g_RoundStarted && !RoundNeedsToContinue())
+		RoundEnd();
 
 	if (victimTeam == TEAM_SLAYER && attackerTeam == TEAM_VAMPIRE) {
 		switch (random_num(1, 3)) {
