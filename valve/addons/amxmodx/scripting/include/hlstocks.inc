@@ -29,6 +29,8 @@
 * - Added new constant: HL_MAX_WEAPON_SLOTS
 * Version 1.9 (date: 12.05.2020)
 * - Added hl_strip_user_weapon() (Thanks XxAvalanchexX)
+* Version 2.0 (date: 23.06.2020)
+* - Fix hl_set_user_score(), hl_set_user_frags() and hl_set_user_deaths() glitch in scoreboard when player is in spectator.
 *
 * http://aghl.ru/forum/ - Russian Half-Life and Adrenaline Gamer Community
 *
@@ -94,7 +96,7 @@ stock hl_set_user_frags(id, frags)
 	write_short(frags);
 	write_short(hl_get_user_deaths(id));
 	write_short(0);
-	write_short(hl_get_user_team(id));
+	write_short(__get_user_team(id));
 	message_end();
 }
 
@@ -119,7 +121,7 @@ stock hl_set_user_deaths(client, deaths)
 		write_short(get_user_frags(client));
 		write_short(deaths);
 		write_short(0);
-		write_short(hl_get_user_team(client));
+		write_short(__get_user_team(client));
 		message_end();
 	}
 }
@@ -139,7 +141,7 @@ stock hl_set_user_score(client, frags, deaths)
 		write_short(frags);
 		write_short(deaths);
 		write_short(0);
-		write_short(hl_get_user_team(client));
+		write_short(__get_user_team(client));
 		message_end();
 	}
 }
@@ -279,6 +281,18 @@ stock hl_set_user_team(client, const team[])
 	}
 
 	return 1;
+}
+
+// ignores if player is in spec or not
+stock __get_user_team(client, team[] = "", len = 0) {
+	static Float:tdm;
+	global_get(glb_teamplay, tdm);
+	if (tdm < 1.0) return 0;
+
+	if (!len) len = HL_MAX_TEAMNAME_LENGTH;
+	get_user_info(client, "model", team, len);
+
+	return __get_team_index(team);
 }
 
 stock __get_team_index(const team[])
