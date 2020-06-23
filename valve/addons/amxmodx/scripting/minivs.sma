@@ -31,7 +31,7 @@
 // until we add the missing powers, use default attributes from edgar
 
 #define VAMP_EDGAR_WAKEUP_HEALTH 20
-#define VAMP_EDGAR_KNOCKOUT_DURATION 5.0
+#define VAMP_EDGAR_KNOCKOUT_DURATION 4.0
 
 #define VAMP_LOUIS_WAKEUP_HEALTH 25
 #define VAMP_LOUIS_KNOCKOUT_DURATION 4.0
