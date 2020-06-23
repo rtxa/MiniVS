@@ -382,6 +382,9 @@ public VS_KnockOut(id) {
 	g_KnockOutEndTime[id] = get_gametime() + g_KnockOutTime[id];
 	g_IsKnockOut[id] = true;
 
+	// remove any special power
+	SetSpecialPower(id, false);
+
 	hl_user_silentkill(id);
 
 	set_ent_data(id, "CBasePlayer", "m_iHideHUD", HIDEHUD_WEAPONS | HIDEHUD_HEALTH);
