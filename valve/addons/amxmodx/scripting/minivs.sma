@@ -28,6 +28,8 @@
 #define VAMP_HIGHJUMP_HEIGHT 550.0
 #define VAMP_MAXSPEED 320.0
 
+// until we add the missing powers, use default attributes from edgar
+
 #define VAMP_EDGAR_WAKEUP_HEALTH 20
 #define VAMP_EDGAR_KNOCKOUT_DURATION 5.0
 
@@ -37,7 +39,7 @@
 #define VAMP_NINA_WAKEUP_HEALTH 30
 #define VAMP_NINA_KNOCKOUT_DURATION 3.0
 
-#define SLAYER_MAXSPEED 270.0
+#define SLAYER_MAXSPEED 240.0
 
 // --------------------------------- Sounds ---------------------------------
 new const SND_PLR_FALLPAIN1[] 		= "player/pl_fallpain1.wav";
@@ -1208,8 +1210,8 @@ public SetClassLouis(id) {
 	SetVampire(id);
 
 	// set stats
-	g_KnockOutTime[id] = VAMP_LOUIS_KNOCKOUT_DURATION;
-	g_WakeUpHealth[id] = VAMP_LOUIS_WAKEUP_HEALTH;
+	g_KnockOutTime[id] = VAMP_EDGAR_KNOCKOUT_DURATION;
+	g_WakeUpHealth[id] = VAMP_EDGAR_WAKEUP_HEALTH;
 }
 
 public SetClassNina(id) {
@@ -1220,8 +1222,8 @@ public SetClassNina(id) {
 	SetVampire(id);
 
 	// set stats
-	g_KnockOutTime[id] = VAMP_NINA_KNOCKOUT_DURATION;
-	g_WakeUpHealth[id] = VAMP_NINA_WAKEUP_HEALTH;
+	g_KnockOutTime[id] = VAMP_EDGAR_KNOCKOUT_DURATION;
+	g_WakeUpHealth[id] = VAMP_EDGAR_WAKEUP_HEALTH;
 }
 
 StartRoundTimer() {
