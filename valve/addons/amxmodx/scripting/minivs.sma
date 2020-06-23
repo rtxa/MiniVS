@@ -867,6 +867,8 @@ public RoundEnd() {
 	hl_set_teamscore(TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
 	hl_set_teamscore(TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
 
+	g_DisableDeathPenalty = true;
+
 	// dark the screen a little
 	fade_user_screen(0, _, _, ScreenFade_StayOut, 0, 0, 0, 150);
 
