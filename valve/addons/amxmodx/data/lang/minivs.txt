@@ -1,4 +1,5 @@
 [en]
+ROUND_RESTART = Round restarted!
 ROUND_DRAW = Draw!
 ROUND_SLAYERSWIN = Slayers WIN!
 ROUND_VAMPIRESWIN = Vampires WIN!
@@ -18,6 +19,7 @@ NOTIF_KNOCKOUT = %n knocked down %n
 TAG_DEAD = (DEAD)
 
 [es]
+ROUND_RESTART = Ronda reiniciada!
 ROUND_DRAW = Empate!
 ROUND_SLAYERSWIN = Ganan los CAZAVAMPIROS!
 ROUND_VAMPIRESWIN = Ganan los VAMPIROS!

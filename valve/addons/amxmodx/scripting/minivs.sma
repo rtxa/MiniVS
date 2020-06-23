@@ -183,6 +183,9 @@ public plugin_init() {
 
 	register_forward(FM_GetGameDescription, "OnGetGameDescription");
 	
+	register_concmd("sv_restart", "CmdRestartGame", ADMIN_KICK);
+	register_concmd("sv_restartround", "CmdRestartRound", ADMIN_KICK);
+
 	register_clcmd("say !team", "CmdTeamMenu");
 	register_clcmd("say !class", "CmdClassMenu");
 
@@ -872,6 +875,42 @@ public RoundEnd() {
 
 	set_task(5.0, "RoundStart", TASK_ROUNDSTART);
 }
+
+public CmdRestartGame(id, level, cid) {
+	if (!cmd_access(id, level, cid, 1))
+		return PLUGIN_HANDLED;
+
+	// reset players score
+	for (new i = 1; i <= MaxClients; i++) {
+		if (is_user_connected(i))
+			hl_set_user_score(i, 0, 0);
+	}
+
+	// reset team score
+	for (new i; i < sizeof(g_TeamScore); i++) {
+		g_TeamScore[i] = 0;
+	}
+	hl_set_teamscore(TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
+	hl_set_teamscore(TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
+
+	g_RoundStarted = false;
+	RoundStart();
+	client_print(0, print_center, "%l", "ROUND_RESTART");
+
+	return PLUGIN_HANDLED;
+}
+
+public CmdRestartRound(id, level, cid) {
+	if (!cmd_access(id, level, cid, 1))
+		return PLUGIN_HANDLED;
+
+	g_RoundStarted = false;
+	RoundStart();
+	client_print(0, print_center, "%l", "ROUND_RESTART");
+
+	return PLUGIN_HANDLED;
+}
+
 
 // get player team, the system breaks if i use hl_get_user_team(id) because in spectator he has no team... we need to check thtat internally
 // if player already select blue team
