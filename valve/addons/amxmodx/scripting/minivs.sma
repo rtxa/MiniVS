@@ -800,8 +800,6 @@ public RoundStart() {
 			hl_user_spawn(plr);
 	}
 
-	client_print(0, print_center, "Round Started");
-
 	g_RoundStarted = true;
 
 	g_RoundTime = get_pcvar_num(g_pCvarRoundTime);
