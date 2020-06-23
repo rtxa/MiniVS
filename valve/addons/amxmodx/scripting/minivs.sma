@@ -681,12 +681,15 @@ public TaskPutInServer(taskid) {
 
 	SpeakSnd(id, SND_INTRO);
 
+	// bots don't know how to select team
 	if (is_user_bot(id)) {
 		ChangePlayerTeam(id, id % 2 ? TEAM_SLAYER : TEAM_VAMPIRE);
 		SetPlayerTeam(id, id % 2 ? TEAM_SLAYER : TEAM_VAMPIRE);
 		SetPlayerClass(id, id % 2 ? random_num(CLASS_HUMAN_FATHER, CLASS_HUMAN_EIGHTBALL) : random_num(CLASS_VAMP_LOUIS, CLASS_VAMP_NINA));
 		if (g_RoundStarted && !RoundNeedsToContinue())
 			RoundEnd();
+	} else { // set player default team, fixes player not being in the spectator column 
+		ChangePlayerTeam(id, TEAM_SLAYER);
 	}
 }
 
