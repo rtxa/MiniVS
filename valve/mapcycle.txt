@@ -1,0 +1,11 @@
+vs_quaint
+vs_feint
+vs_blizzard
+vs_lynch
+vs_station
+vs_school
+vs_cemetery
+vs_hotel
+vs_thetombs
+vs_carpark
+vs_niteclub
