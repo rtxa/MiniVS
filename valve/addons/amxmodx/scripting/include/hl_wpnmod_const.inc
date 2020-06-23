@@ -57,12 +57,12 @@
 #define NORMAL_GUN_FLASH				256
 #define	DIM_GUN_FLASH					128
 
-// Weapon flags
-#define ITEM_FLAG_SELECTONEMPTY			1
-#define ITEM_FLAG_NOAUTORELOAD			2
-#define ITEM_FLAG_NOAUTOSWITCHEMPTY		4
-#define ITEM_FLAG_LIMITINWORLD			8
-#define ITEM_FLAG_EXHAUSTIBLE			16 // A player can totally exhaust their ammo supply and lose this weapon
+// Weapon flags (already defined by hlsdk_const.inc)
+//#define ITEM_FLAG_SELECTONEMPTY			1
+//#define ITEM_FLAG_NOAUTORELOAD			2
+//#define ITEM_FLAG_NOAUTOSWITCHEMPTY		4
+//#define ITEM_FLAG_LIMITINWORLD			8
+//#define ITEM_FLAG_EXHAUSTIBLE			16 // A player can totally exhaust their ammo supply and lose this weapon
 
 // Default spreads
 #define VECTOR_CONE_1DEGREES			Float:{ 0.00873, 0.00873, 0.00873 }
