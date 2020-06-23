@@ -221,7 +221,6 @@ public plugin_init() {
 	RoundStart();
 }
 
-// crashea cuando se desconecta despues del delay
 public OnClawSpecialAttack(iItem, iPlayer) {
 	if (vs_claw_get_power_timeleft(iItem) == 25) {
 		SetSpecialPower(iPlayer, false);
@@ -280,7 +279,7 @@ public OnPlayerPreThink(id) {
 }
 
 public EventIntermissionMode() {
-	// reproduce intermission music
+	// play intermission music
 	PlaySound(0, SND_INTERMISSION);
 }
 
@@ -301,7 +300,8 @@ public OnCorpse_Think(this) {
 	set_pev(this, pev_nextthink, get_gametime() + 0.1);
 
 	new modelindex = pev(this, pev_modelindex);
-	// only you can drin blood humans corpses
+
+	// vampires can only drink from human bodies
 	if (modelindex != g_MdlFather && modelindex != g_MdlMolly && modelindex != g_MdlEightBall) {
 		return;
 	}
@@ -346,8 +346,8 @@ public OnCorpse_Use(this, player) {
 	if (GetPlayerTeam(player) != TEAM_VAMPIRE)
 		return;
 
-	// make sure player drinks from only one corpse
-	// (solves case where two corpses are too close to each other and you can drink from both)
+	// make sure player drinks only from one corpse
+	// (two corpses are too close from each other and you can drink both of them)
 	if (g_DrinkingBloodEnt[player] == 0) {
 		g_DrinkingBloodEnt[player] = this;
 	}
@@ -365,7 +365,7 @@ public OnCorpse_Use(this, player) {
 	}
 
 	if (g_NextDrinkSound[player] < get_gametime()) {
-		// make the blood appear in the floor
+		// place the blood close to the floor
 		origin[2] -= 28;
 		te_display_falling_sprite(origin, g_SprBloodSpray, g_SprBloodDrop, BLOOD_COLOR_RED);
 		te_display_falling_sprite(origin, g_SprBloodSpray, g_SprBloodDrop, BLOOD_COLOR_RED, .scale = 15); // bright red
@@ -698,7 +698,6 @@ public client_putinserver(id) {
 }
 
 public client_disconnected(id) {
-	// todas las ids
 	remove_task(TASK_SENDTOSPEC + id);
 
 	// player that abort connection hasn't pev data
@@ -720,8 +719,6 @@ public client_remove(id) {
 
 /* =============================== */
 
-// peisno en dos ocpiones, hacer stocks para contar jugadores de la ronda y nada mas que eso
-// las natives no fueron pensados para rondas, 
 stock vs_get_players(players[MAX_PLAYERS], &numPlayers) {
 	for (new i = 1; i <= MaxClients; i++) {
 		if (!is_user_connected(i))
@@ -769,7 +766,7 @@ stock vs_get_team_alives(teamid) {
 }
 
 public RoundStart() {
-	// añadir funcion para reiniciar el limite de rondas cada vez q no haya ningun jugador
+	// todo: add round limit and ignore when death penalty is disabled
 	
 	if (g_RoundStarted)
 		return;
@@ -979,7 +976,6 @@ public HandlerTeamMenu(id, menu, item) {
 
 	menu_destroy(menu);
 
-	// si esta en espectador y sin clase, luego de seleccionar equipo
 	DisplayClassMenu(id);
 
 	return PLUGIN_HANDLED;
@@ -1018,7 +1014,6 @@ public DisplayClassMenu(id) {
 	menu_display(id, menu);
 }
 
-// faltan los chequeso den disconect, resetear todo cuando se vaya, o cuandos emande restart, el primeo  sea
 public HandlerClassMenu(id, menu, item) {
 	if (item == MENU_EXIT) {
 		menu_destroy(menu);
@@ -1396,23 +1391,18 @@ stock hl_set_teamscore(teamName[], points, id = 0) {
 }
 
 
-stock WeaponBox_Kill(const pWeaponBox)
-{
-		new pWeapon, i;
-		
-		// destroy the weapons
-		for (i = 0 ; i < HL_MAX_WEAPON_SLOTS ; i++)
-		{
-				pWeapon = get_ent_data_entity(pWeaponBox, "CWeaponBox", "m_rgpPlayerItems", i);
- 
-				while (pWeapon != FM_NULLENT)
-				{
-						set_pev(pWeapon, pev_flags, FL_KILLME);
-						
-						pWeapon = get_ent_data_entity(pWeaponBox, "CBasePlayerItem", "m_pNext");
-				}
+stock WeaponBox_Kill(const pWeaponBox) {
+	new pWeapon;
+	
+	// destroy the weapons inside the box
+	for (new i = 0 ; i < HL_MAX_WEAPON_SLOTS; i++) {
+		pWeapon = get_ent_data_entity(pWeaponBox, "CWeaponBox", "m_rgpPlayerItems", i);
+		while (pWeapon != FM_NULLENT) {
+			set_pev(pWeapon, pev_flags, FL_KILLME);
+			pWeapon = get_ent_data_entity(pWeaponBox, "CBasePlayerItem", "m_pNext");
 		}
- 
-		// remove the box
-		set_pev(pWeaponBox, pev_flags, FL_KILLME);
+	}
+	
+	// remove the box
+	set_pev(pWeaponBox, pev_flags, FL_KILLME);
 }
