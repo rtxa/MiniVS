@@ -27,7 +27,7 @@
 // Weapon settings
 #define WEAPON_NAME 			    "weapon_vsclaw"
 #define WEAPON_SLOT			        1
-#define WEAPON_POSITION			    1
+#define WEAPON_POSITION			    3
 #define WEAPON_PRIMARY_AMMO	    	"vs_power"
 #define WEAPON_PRIMARY_AMMO_MAX		1
 #define WEAPON_SECONDARY_AMMO		"vs_timeleft"
