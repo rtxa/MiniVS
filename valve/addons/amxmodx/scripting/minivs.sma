@@ -419,7 +419,8 @@ public VS_WakeUp(id) {
 	set_ent_data(id, "CBasePlayer", "m_fInitHUD", 1);
 
 	// hide claw from weapons slots
-	set_pev(id, pev_weapons, 1 << HLW_SUIT);
+	if (!is_user_bot(id)) // bots need this info for select weapons
+		set_pev(id, pev_weapons, 1 << HLW_SUIT); // hack: hide weapon from weapon slots making think player has no weapons
 
 	// emit laugh sound
 	if (GetPlayerClass(id) != CLASS_VAMP_NINA)
@@ -1180,7 +1181,9 @@ public SetVampire(id) {
 	// set equipment
 	hl_set_user_longjump(id, true);
 	wpnmod_give_item(id, "weapon_vsclaw");
-	set_pev(id, pev_weapons, 1 << HLW_SUIT); // hack: hide weapon from weapon slots making think player has no weapons
+	
+	if (!is_user_bot(id)) // bots need this info for select weapons
+		set_pev(id, pev_weapons, 1 << HLW_SUIT); // hack: hide weapon from weapon slots making think player has no weapons
 
 	// set stats
 	set_user_footsteps(id, true); // silent footsteps
