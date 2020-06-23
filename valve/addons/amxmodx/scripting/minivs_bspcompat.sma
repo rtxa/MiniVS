@@ -10,6 +10,46 @@
 #define VERSION "0.3"
 #define AUTHOR  "rtxA"
 
+new const WEAPONS_CLASSES[][] = {
+	"weapon_357",
+	"weapon_9mmAR",
+	"weapon_9mmhandgun",
+	"weapon_crossbow",
+	"weapon_egon",
+	"weapon_gauss",
+	"weapon_handgrenade",
+	"weapon_hornetgun",
+	"weapon_rpg",
+	"weapon_satchel",
+	"weapon_shotgun",
+	"weapon_snark",
+	"weapon_tripmine",
+	"weaponbox"
+};
+
+new const AMMO_CLASSES[][] = {
+	"ammo_357",
+	"ammo_9mmAR",
+	"ammo_9mmbox",
+	"ammo_9mmclip",
+	"ammo_ARgrenades",
+	"ammo_buckshot",
+	"ammo_crossbow",
+	"ammo_egonclip",
+	"ammo_gaussclip",
+	"ammo_glockclip",
+	"ammo_mp5clip",
+	"ammo_mp5grenades",
+	"ammo_rpgclip"
+};
+
+new const ITEM_CLASSES[][] = {
+	"item_longjump",
+	"item_suit",
+	"item_battery",
+	"item_healthkit",
+};
+
 enum {
 	TEAM_NONE = 0,
 	TEAM_SLAYER = 4, // green color
@@ -40,6 +80,9 @@ public plugin_init() {
 		CreateGameTeamMaster("team2", TEAM_VAMPIRE);
 		RemoveNoTeamSpawns();
 	}
+
+	RemoveItems();
+	DisableChargers();
 }
 
 public plugin_end() {
@@ -121,5 +164,50 @@ stock RemoveNoTeamSpawns() {
 		if (!equal(master, "team1") && !equal(master, "team2")) {
 			remove_entity(ent);
 		} 
+	}
+}
+
+stock RemoveItems() {
+	for (new i; i < sizeof(WEAPONS_CLASSES); i++) {
+		new ent;
+		while ((ent = find_ent_by_class(ent, WEAPONS_CLASSES[i]))) {
+			set_pev(ent, pev_flags, FL_KILLME);
+		}
+	}
+
+	for (new i; i < sizeof(AMMO_CLASSES); i++) {
+		new ent;
+		while ((ent = find_ent_by_class(ent, AMMO_CLASSES[i]))) {
+			set_pev(ent, pev_flags, FL_KILLME);
+		}
+	}
+
+	for (new i; i < sizeof(ITEM_CLASSES); i++) {
+		new ent;
+		while ((ent = find_ent_by_class(ent, ITEM_CLASSES[i]))) {
+			set_pev(ent, pev_flags, FL_KILLME);
+		}
+	}
+}
+
+stock DisableChargers() {
+	new ent;
+	while ((ent = find_ent_by_class(ent, "func_recharge"))) {
+		new ptr = pev(ent, pev_model);
+		remove_entity(ent);
+		
+		new ent2 = create_entity("func_wall");
+		set_pev_string(ent2, pev_model, ptr);
+		DispatchSpawn(ent2);
+	}
+
+	ent = 0;
+	while ((ent = find_ent_by_class(ent, "func_healthcharger"))) {
+		new ptr = pev(ent, pev_model);
+		remove_entity(ent);
+		
+		new ent2 = create_entity("func_wall");
+		set_pev_string(ent2, pev_model, ptr);
+		DispatchSpawn(ent2);
 	}
 }
