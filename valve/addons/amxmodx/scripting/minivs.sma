@@ -63,8 +63,7 @@ new const SND_VAMP_ATTACK1[]		= "minivs/weapons/vattack1.wav";
 new const SND_VAMP_ATTACK2[]		= "minivs/weapons/vattack2.wav";
 new const SND_VAMP_ATTACK3[]		= "minivs/weapons/vattack3.wav";
 
-new const SND_DECAPITATE1[] 		= "minivs/player/head1.wav";
-new const SND_DECAPITATE2[] 		= "minivs/player/head2.wav";
+new const SND_DECAPITATE[] 			= "minivs/player/headshot2.wav";
 
 // --------------------------------- Models ---------------------------------
 
@@ -169,8 +168,7 @@ public plugin_precache() {
 	precache_sound(SND_VAMP_ATTACK2);
 	precache_sound(SND_VAMP_ATTACK3);
 
-	precache_sound(SND_DECAPITATE1);
-	precache_sound(SND_DECAPITATE2);
+	precache_sound(SND_DECAPITATE);
 
 	g_SprBloodDrop = precache_model("sprites/blood.spr");
 	g_SprBloodSpray = precache_model("sprites/bloodspray.spr");
@@ -518,10 +516,7 @@ public OnPlayerTakeDamage_Pre(victim, inflictor, attacker, Float:damage, damaget
 
 		// play decapitation sound, even if it's not implemented
 		if (damage >= hl_get_user_health(victim) && get_ent_data(victim, "CBaseMonster", "m_LastHitGroup") == HIT_HEAD) {
-			switch (random_num(1, 2)) {
-				case 1: emit_sound(attacker, CHAN_STATIC, SND_DECAPITATE1, 1.0, ATTN_NORM, 0, PITCH_NORM);
-				case 2: emit_sound(attacker, CHAN_STATIC, SND_DECAPITATE2, 1.0, ATTN_NORM, 0, PITCH_NORM);
-			}
+			emit_sound(attacker, CHAN_STATIC, SND_DECAPITATE, 1.0, ATTN_NORM, 0, PITCH_NORM);
 			return HAM_IGNORED;
 		}
 	}
