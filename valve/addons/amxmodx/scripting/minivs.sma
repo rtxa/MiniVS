@@ -298,7 +298,7 @@ public OnWeaponBox_Spawn(ent) {
 }
 
 public OnWeaponBox_OnGround(ent) {
-	WeaponBox_Kill(ent);
+	hl_remove_wbox(ent);
 }
 
 public OnCorpse_Think(this) {
@@ -673,9 +673,9 @@ public TaskPutInServer(taskid) {
 	strtoupper(vamp);
 	strtoupper(slayer);
 
-	hl_set_teamnames(id, "", vamp, "", slayer);
-	hl_set_teamscore(TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1], id);
-	hl_set_teamscore(TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1], id);
+	hl_set_user_teamnames(id, "", vamp, "", slayer);
+	hl_set_user_teamscore(id, TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
+	hl_set_user_teamscore(id, TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
 
 	// increase display time for center messages (default is too low, player can barely see them)
 	client_cmd(id, "scr_centertime 4");
@@ -865,8 +865,8 @@ public RoundEnd() {
 			PlaySound(0, SND_ROUND_DRAW);
 		} 
 	}
-	hl_set_teamscore(TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
-	hl_set_teamscore(TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
+	hl_set_user_teamscore(0, TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
+	hl_set_user_teamscore(0, TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
 
 	g_DisableDeathPenalty = true;
 
@@ -890,8 +890,8 @@ public CmdRestartGame(id, level, cid) {
 	for (new i; i < sizeof(g_TeamScore); i++) {
 		g_TeamScore[i] = 0;
 	}
-	hl_set_teamscore(TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
-	hl_set_teamscore(TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
+	hl_set_user_teamscore(0, TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
+	hl_set_user_teamscore(0, TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
 
 	g_RoundStarted = false;
 	RoundStart();
@@ -1399,51 +1399,4 @@ stock ChangePlayerTeam(id, teamId, kill = false) {
 			message_end();
 		}
 	}
-}
-
-// Execute this post client_putinserver
-// Change team names from VGUI Menu and VGUI Scoreboard (the last one only works with vanilla clients)
-stock hl_set_teamnames(id, any:...) {
-	new teamNames[HL_MAX_TEAMS][HL_TEAMNAME_LENGTH];
-	new numTeams = clamp(numargs() - 1, 0, 10);
-
-	for (new i; i < numTeams; i++)
-		format_args(teamNames[i], charsmax(teamNames[]), 1 + i);
-
-	// Send new team names
-	message_begin(MSG_ONE, get_user_msgid("TeamNames"), _, id);
-	write_byte(numTeams);
-	for (new i; i < numTeams; i++)
-		write_string(teamNames[i]);
-	message_end();
-}
-
-stock hl_set_teamscore(teamName[], points, id = 0) {
-	static teamScore;
-
-	if (!teamScore)
-		teamScore = get_user_msgid("TeamScore");
-
-	message_begin(id == 0 ? MSG_BROADCAST : MSG_ONE, teamScore, _, id);
-	write_string(teamName);
-	write_short(points);
-	write_short(0);
-	message_end();
-}
-
-
-stock WeaponBox_Kill(const pWeaponBox) {
-	new pWeapon;
-	
-	// destroy the weapons inside the box
-	for (new i = 0 ; i < HL_MAX_WEAPON_SLOTS; i++) {
-		pWeapon = get_ent_data_entity(pWeaponBox, "CWeaponBox", "m_rgpPlayerItems", i);
-		while (pWeapon != FM_NULLENT) {
-			set_pev(pWeapon, pev_flags, FL_KILLME);
-			pWeapon = get_ent_data_entity(pWeaponBox, "CBasePlayerItem", "m_pNext");
-		}
-	}
-	
-	// remove the box
-	set_pev(pWeaponBox, pev_flags, FL_KILLME);
 }
