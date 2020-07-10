@@ -8,7 +8,7 @@
 #include <xs>
 
 #define PLUGIN  "GameDLL Send to Spec"
-#define VERSION "0.1"
+#define VERSION "0.2"
 #define AUTHOR  "rtxA"
 
 new g_PutInServer[MAX_PLAYERS + 1];
@@ -74,8 +74,6 @@ stock set_user_spectator(id)
     //hl_strip_user_weapons(id);
     set_pev(id, pev_weapons, 0);
 
-    // si un dia quiero arreglar los hitboxes, debo modificar elg amedll para q no sea dependietne
-    // el modelindex d elos hitboxes, que se pueda cambiar g_ulModelIndexPlayer
     // Set HEV sounds off
     for (new i; i < get_ent_data_size("CBasePlayer", "m_rgSuitPlayList"); i++)
         set_ent_data(id, "CBasePlayer", "m_rgSuitPlayList", i);
@@ -115,7 +113,7 @@ stock set_user_spectator(id)
     set_ent_data(id, "CBasePlayer", "m_afPhysicsFlags", get_ent_data(id, "CBasePlayer", "m_afPhysicsFlags") & ~PFLAG_DUCKING);
     set_pev(id, pev_flags, pev(id, pev_flags) & ~FL_DUCKING);
     set_pev(id, pev_deadflag, DEAD_RESPAWNABLE);
-    set_pev(id, pev_health, 1);
+    set_pev(id, pev_health, 1.0);
     set_pev(id, pev_effects, EF_NODRAW);
 
     set_ent_data(id, "CBasePlayer", "m_fInitHUD", 1);
