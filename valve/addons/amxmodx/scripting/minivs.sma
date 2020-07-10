@@ -656,21 +656,9 @@ public TaskPutInServer(taskid) {
 	if (!is_user_connected(id))
 		return;
 
-	new vamp[HL_TEAMNAME_LENGTH];
-	new slayer[HL_TEAMNAME_LENGTH];
+	UpdateTeamNames(id);
 
-	// Get translated team name
-	SetGlobalTransTarget(id);
-	formatex(vamp, charsmax(vamp), "%l", "TITLE_VAMPIRE");
-	formatex(slayer, charsmax(slayer), "%l", "TITLE_SLAYER");
-
-	// Stylize it to uppercase
-	strtoupper(vamp);
-	strtoupper(slayer);
-
-	hl_set_user_teamnames(id, "", vamp, "", slayer);
-	hl_set_user_teamscore(id, TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
-	hl_set_user_teamscore(id, TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
+	UpdateTeamScore(id);
 
 	// increase display time for center messages (default is too low, player can barely see them)
 	client_cmd(id, "scr_centertime 4");
@@ -847,21 +835,21 @@ public RoundEnd() {
 	switch(g_RoundWinner) {
 		case TEAM_SLAYER: {
 			PlaySound(0, SND_ROUND_HUMANSWINS);
-			g_TeamScore[TEAM_SLAYER - 1] += SCORE_POINTS;
-			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_SLAYERSWIN", "TITLE_SLAYER", g_TeamScore[TEAM_SLAYER - 1], "TITLE_VAMPIRE", g_TeamScore[TEAM_VAMPIRE - 1]);
+			AddPointsToScore(g_RoundWinner, SCORE_POINTS);
+			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_SLAYERSWIN", "TITLE_SLAYER", GetTeamScore(TEAM_SLAYER), "TITLE_VAMPIRE", GetTeamScore(TEAM_VAMPIRE));
 		}
 		case TEAM_VAMPIRE: {
 			PlaySound(0, SND_ROUND_VAMPSWIN);
-			g_TeamScore[TEAM_VAMPIRE - 1] += SCORE_POINTS;
-			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_VAMPIRESWIN", "TITLE_SLAYER", g_TeamScore[TEAM_SLAYER - 1], "TITLE_VAMPIRE", g_TeamScore[TEAM_VAMPIRE - 1]);
+			AddPointsToScore(g_RoundWinner, SCORE_POINTS);
+			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_VAMPIRESWIN", "TITLE_SLAYER", GetTeamScore(TEAM_SLAYER), "TITLE_VAMPIRE", GetTeamScore(TEAM_VAMPIRE));
 		}
 		case TEAM_NONE: {
-			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_DRAW", "TITLE_SLAYER", g_TeamScore[TEAM_SLAYER - 1], "TITLE_VAMPIRE", g_TeamScore[TEAM_VAMPIRE - 1]);
+			client_print(0, print_center, "%l^n^n%l : %d %l : %d", "ROUND_DRAW", "TITLE_SLAYER", GetTeamScore(TEAM_SLAYER), "TITLE_VAMPIRE", GetTeamScore(TEAM_VAMPIRE));
 			PlaySound(0, SND_ROUND_DRAW);
 		} 
 	}
-	hl_set_user_teamscore(0, TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
-	hl_set_user_teamscore(0, TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
+
+	UpdateTeamScore();
 
 	g_DisableDeathPenalty = true;
 
@@ -885,8 +873,8 @@ public CmdRestartGame(id, level, cid) {
 	for (new i; i < sizeof(g_TeamScore); i++) {
 		g_TeamScore[i] = 0;
 	}
-	hl_set_user_teamscore(0, TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1]);
-	hl_set_user_teamscore(0, TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1]);
+
+	UpdateTeamScore();
 
 	g_RoundStarted = false;
 	RoundStart();
@@ -1101,7 +1089,7 @@ public AddPointsToScore(team, value) {
 	g_TeamScore[team - 1] += value;
 }
 
-public GetScorePoints(team) {
+public GetTeamScore(team) {
 	return g_TeamScore[team - 1];
 }
 
@@ -1394,4 +1382,25 @@ stock ChangePlayerTeam(id, teamId, kill = false) {
 			message_end();
 		}
 	}
+}
+
+stock UpdateTeamNames(id = 0) {
+	new slayer[HL_MAX_TEAMNAME_LENGTH];
+	new vampire[HL_MAX_TEAMNAME_LENGTH];
+
+	// Get translated team name
+	SetGlobalTransTarget(id);
+	formatex(slayer, charsmax(slayer), "%l", "TITLE_SLAYER");
+	formatex(vampire, charsmax(vampire), "%l", "TITLE_VAMPIRE");
+
+	// Stylize to uppercase
+	strtoupper(slayer);
+	strtoupper(vampire);
+
+	hl_set_user_teamnames(id, "", vampire, "", slayer);
+}
+
+stock UpdateTeamScore(id = 0) {
+	hl_set_user_teamscore(id, TEAMNAME_SLAYER, GetTeamScore(TEAM_SLAYER));
+	hl_set_user_teamscore(id, TEAMNAME_VAMPIRE, GetTeamScore(TEAM_VAMPIRE));
 }
