@@ -13,7 +13,7 @@
 #include <xs>
 
 #define PLUGIN  "MiniVS"
-#define VERSION "0.3"
+#define VERSION "0.4"
 #define AUTHOR  "rtxA"
 
 #pragma semicolon 1
@@ -674,8 +674,8 @@ public TaskPutInServer(taskid) {
 	strtoupper(slayer);
 
 	hl_set_teamnames(id, "", vamp, "", slayer);
-	hl_set_teamscore("slayer", g_TeamScore[TEAM_SLAYER - 1], id);
-	hl_set_teamscore("vampire", g_TeamScore[TEAM_VAMPIRE - 1], id);
+	hl_set_teamscore(TEAMNAME_SLAYER, g_TeamScore[TEAM_SLAYER - 1], id);
+	hl_set_teamscore(TEAMNAME_VAMPIRE, g_TeamScore[TEAM_VAMPIRE - 1], id);
 
 	// increase display time for center messages (default is too low, player can barely see them)
 	client_cmd(id, "scr_centertime 4");
