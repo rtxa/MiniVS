@@ -92,13 +92,15 @@ enum _:Animation
 
 #define Offset_trHit 			Offset_iuser1
 #define Offset_iSwing 			Offset_iuser2
-#define Offset_WeaponId         Offset_iuser3
 #define Offset_PowerIsOn 		Offset_iuser4
 #define Offset_PowerTime 		Offset_fuser3
 #define Offset_Timer			Offset_fuser4
+#define Pev_WeaponId			pev_euser4
 
 new g_sModelIndexBloodDrop;
 new g_sModelIndexBloodSpray;
+
+new g_WeaponsId;
 
 //*[*********************************************/
 //*[ Precache resources                         *
@@ -170,7 +172,7 @@ public TaskSetTimer(params[2], taskid) {
 	if (pev_valid(iItem) != 2)
 		return;
 
-	if (pev_serial(iItem) != wpnId)
+	if (pev(iItem, Pev_WeaponId) != wpnId)
 		return;
 
 	new iPlayer = pev(iItem, pev_owner);
@@ -201,6 +203,9 @@ public TaskSetTimer(params[2], taskid) {
 
 public WPN_Spawn(const iItem)
 {
+	// Set unique weapon id
+	set_pev(iItem, Pev_WeaponId, ++g_WeaponsId);
+
 	// Setting world model
 	SET_MODEL(iItem, MODEL_WORLD);
 
@@ -312,7 +317,7 @@ public WPN_SecondaryAttack(const iItem, const iPlayer)
 
 	new params[2];
 	params[0] = iItem;
-	params[1] = pev_serial(iItem);
+	params[1] = pev(iItem, Pev_WeaponId);
 	TaskSetTimer(params, TASK_TIMER);	
 }
 
