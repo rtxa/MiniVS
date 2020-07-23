@@ -23,7 +23,7 @@ MiniVS is a port of Vampire-Slayer as a mini-mod for Half-Life multiplayer. Play
 
 ## ☉ Preview
 
-[youtube]AHJ9sWNC2Uw[/youtube]
+www.youtube.com/watch?v=AHJ9sWNC2Uw
 
 ## ⤓ Download
 
